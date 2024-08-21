@@ -20,9 +20,9 @@ abstract public class ListTest extends CollectionTest{
     @Test
     @Override
     void addTest() {
-        list.add(2, 100);
-        Object[] array1 = collection.stream().toArray();
-        Object[] array2 = list.stream().toArray();
+        list.add(5, 85);
+        Object[] array1 = list.stream().limit(9).toArray();
+        Object[] array2 = {3, -10, 20, 1, 10, 85, 8, 100 , 17};
         assertArrayEquals(array1, array2);
     }
 
