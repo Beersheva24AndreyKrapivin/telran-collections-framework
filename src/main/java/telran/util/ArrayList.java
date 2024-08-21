@@ -52,9 +52,6 @@ public class ArrayList<T> implements List<T> {
     }
 
     private void moveArrayRight(int index, T obj) {
-        // for (int i = index; i < size; i++) {
-        //     array[i + 1] = array[i];
-        // }
         for (int i = size - 1; i >= index; i--) {
             array[i + 1] = array[i];
         }
