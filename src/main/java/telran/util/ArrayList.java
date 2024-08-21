@@ -35,7 +35,8 @@ public class ArrayList<T> implements List<T> {
     public boolean remove(T pattern) {
         boolean res = false;
         for (int i = 0; i < size; i++) {
-            if (array[i] != null && array[i].equals(pattern)) {
+            if (pattern == null && array[i] == null
+                || pattern != null && pattern.equals(array[i])) {
                 moveArrayLeft(i);
                 res = true;
             }
@@ -135,8 +136,9 @@ public class ArrayList<T> implements List<T> {
         int res = -1;
         int index = 0;
         
-        while (index < size && res == -1) {
-            if (array[index] != null && array[index].equals(pattern)) {
+        while (index < array.length && res == -1) {
+            if (pattern == null && array[index] == null
+                || pattern != null && pattern.equals(array[index])) {
                 res = index;
             }
             index++;
@@ -148,10 +150,11 @@ public class ArrayList<T> implements List<T> {
     @Override
     public int lastIndexOf(T pattern) {
         int res = -1;
-        int index = size - 1;
+        int index = array.length - 1;
         
         while (index > 0 && res == -1) {
-            if (array[index] != null && array[index].equals(pattern)) {
+            if (pattern == null && array[index] == null
+                || pattern != null && pattern.equals(array[index])) {
                 res = index;
             }
             index--;

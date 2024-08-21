@@ -43,12 +43,14 @@ abstract public class ListTest extends CollectionTest{
     void indexOfTest() {
         assertEquals(2, list.indexOf(20));   
         assertEquals(-1, list.indexOf(200)); 
+        assertEquals(8, list.indexOf(null)); 
     }
 
     @Test
     void lastIndexOfTest() {
-        assertEquals(6, list.indexOf(100));   
-        assertEquals(-1, list.indexOf(200)); 
+        assertEquals(6, list.lastIndexOf(100));   
+        assertEquals(-1, list.lastIndexOf(200)); 
+        assertEquals(11, list.lastIndexOf(null));
     }
 
 }
