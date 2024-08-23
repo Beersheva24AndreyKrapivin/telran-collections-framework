@@ -2,6 +2,7 @@ package telran.util;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Arrays;
 
 public class ArrayList<T> implements List<T> {
@@ -31,12 +32,18 @@ public class ArrayList<T> implements List<T> {
         array = Arrays.copyOf(array, array.length * 2);
     }
 
+    private void checkIndex(int index, boolean sizeInclusive) {
+        int limit = sizeInclusive ? size : size - 1;
+        if (index < 0 || index > limit) {
+            throw new IndexOutOfBoundsException(index);
+        }
+    }
+
     @Override
     public boolean remove(T pattern) {
         boolean res = false;
         for (int i = 0; i < size; i++) {
-            if (pattern == null && array[i] == null
-                || pattern != null && pattern.equals(array[i])) {
+            if (Objects.equals(array[i], pattern)) {
                 moveArrayLeft(i);
                 res = true;
             }
@@ -49,7 +56,7 @@ public class ArrayList<T> implements List<T> {
             array[i] = array[i + 1];
         }
         array[size - 1] = null;
-        size--;    
+        size--;
     }
 
     private void moveArrayRight(int index, T obj) {
@@ -57,7 +64,7 @@ public class ArrayList<T> implements List<T> {
             array[i + 1] = array[i];
         }
         array[index] = obj;
-        size++;    
+        size++;
     }
 
     @Override
@@ -67,17 +74,7 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public boolean isEmpty() {
-        boolean res = true;
-        int index = 0;
-        
-        while (index < array.length && res) {
-            if (array[index] != null) {
-                res = false;
-            }
-            index++;
-        }
-
-        return res;
+        return size == 0;
     }
 
     @Override
@@ -99,12 +96,12 @@ public class ArrayList<T> implements List<T> {
 
         @Override
         public boolean hasNext() {
-            return currentIndex < array.length;
+            return currentIndex < size;
         }
 
         @Override
         public T next() {
-            if (! hasNext()) {
+            if (!hasNext()) {
                 throw new NoSuchElementException();
             }
             return (T) array[currentIndex++];
@@ -113,6 +110,7 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public void add(int index, T obj) {
+        checkIndex(index, true);
         if (size == array.length) {
             reallocate();
         }
@@ -121,6 +119,7 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public T remove(int index) {
+        checkIndex(index, false);
         T res = (T) array[index];
         moveArrayLeft(index);
         return res;
@@ -128,39 +127,30 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public T get(int index) {
+        checkIndex(index, false);
         return (T) array[index];
     }
 
     @Override
     public int indexOf(T pattern) {
-        int res = -1;
         int index = 0;
-        
-        while (index < array.length && res == -1) {
-            if (pattern == null && array[index] == null
-                || pattern != null && pattern.equals(array[index])) {
-                res = index;
-            }
+
+        while (index < size && !Objects.equals(array[index], pattern)) {
             index++;
         }
 
-        return res;
+        return index == size ? -1 : index;
     }
 
     @Override
     public int lastIndexOf(T pattern) {
-        int res = -1;
-        int index = array.length - 1;
-        
-        while (index > 0 && res == -1) {
-            if (pattern == null && array[index] == null
-                || pattern != null && pattern.equals(array[index])) {
-                res = index;
-            }
+        int index = size - 1;
+
+        while (index >= 0 && !Objects.equals(array[index], pattern)) {
             index--;
         }
 
-        return res;
+        return index;
     }
 
 }

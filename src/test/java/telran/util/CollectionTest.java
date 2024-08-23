@@ -3,6 +3,8 @@ package telran.util;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,10 +40,7 @@ public abstract class CollectionTest {
     @Test
     void isEmptyTest() {
         assertFalse(collection.isEmpty());
-
-        while(collection.size() > 0) {
-            collection.stream().forEach(collection::remove);
-        }
+        Arrays.stream(array).forEach(n -> collection.remove(n));
         assertTrue(collection.isEmpty());
     }
 
@@ -50,4 +49,17 @@ public abstract class CollectionTest {
         assertTrue(collection.contains(10));  
         assertFalse(collection.contains(50));  
     }
+
+    @Test
+    void iteratorTest() {
+        Integer[] actual = new Integer[array.length];
+        int index = 0;
+        Iterator<Integer> it = collection.iterator();
+        while(it.hasNext()) {
+            actual[index++] = it.next();
+        }
+        assertArrayEquals(array, actual);
+        assertThrowsExactly(NoSuchElementException.class, it::next);
+    }
+    
 }
