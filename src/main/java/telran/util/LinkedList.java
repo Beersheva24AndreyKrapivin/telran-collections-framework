@@ -157,27 +157,40 @@ public class LinkedList<T> implements List<T> {
     public T remove(int index) {
         checkIndex(index, false);
         Node<T> node = getNode(index);
-        size--;
 
-        if (size == 0) {
+        if (size == 1) {
             head = null;
             tail = null;   
         } else if (index == 0) {
-            Node<T> nodeNext = node.next;
-            nodeNext.prev = null;
-            head = nodeNext;    
+            removeHead(node);  
         } else if (index == size - 1) {
-            Node<T> nodePrev = node.prev;
-            nodePrev.next = null;
-            tail = nodePrev;
+            removeTail(node);
         } else {
-            Node<T> nodeNext = node.next;
-            Node<T> nodePrev = node.prev;
-            nodePrev.next = nodeNext;
-            nodeNext.prev = nodePrev;
+            removeMiddle(node);
         }
 
+        size--;
+
         return node.obj;
+    }
+
+    private void removeHead(Node<T> currentNode) {
+        Node<T> nodeNext = currentNode.next;
+        nodeNext.prev = null;
+        head = nodeNext;        
+    }
+
+    private void removeTail(Node<T> currentNode) {
+        Node<T> nodePrev = currentNode.prev;
+        nodePrev.next = null;
+        tail = nodePrev;    
+    }
+
+    private void removeMiddle(Node<T> currentNode) {
+        Node<T> nodeNext = currentNode.next;
+        Node<T> nodePrev = currentNode.prev;
+        nodePrev.next = nodeNext;
+        nodeNext.prev = nodePrev;    
     }
 
     @Override

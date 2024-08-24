@@ -27,8 +27,10 @@ abstract public class ListTest extends CollectionTest{
 
     @Test
     void removeIndexTest() {
-        assertEquals(Integer.valueOf(20), list.remove(2));
-        assertThrowsExactly(IndexOutOfBoundsException.class, () -> list.remove(100));    
+        assertEquals(20, list.remove(2));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () -> list.remove(100)); 
+        assertEquals(3, list.remove(0)); 
+        assertEquals(17, list.remove(list.size() - 1));   
     }
     
     @Test
