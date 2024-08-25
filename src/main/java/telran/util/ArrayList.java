@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 public class ArrayList<T> implements List<T> {
 
@@ -30,25 +31,6 @@ public class ArrayList<T> implements List<T> {
 
     private void reallocate() {
         array = Arrays.copyOf(array, array.length * 2);
-    }
-
-    private void checkIndex(int index, boolean sizeInclusive) {
-        int limit = sizeInclusive ? size : size - 1;
-        if (index < 0 || index > limit) {
-            throw new IndexOutOfBoundsException(index);
-        }
-    }
-
-    @Override
-    public boolean remove(T pattern) {
-        boolean res = false;
-        for (int i = 0; i < size; i++) {
-            if (Objects.equals(array[i], pattern)) {
-                moveArrayLeft(i);
-                res = true;
-            }
-        }
-        return res;
     }
 
     private void moveArrayLeft(int index) {
@@ -78,17 +60,13 @@ public class ArrayList<T> implements List<T> {
     }
 
     @Override
-    public boolean contains(T pattern) {
-        return indexOf(pattern) >= 0;
-    }
-
-    @Override
     public Iterator<T> iterator() {
         return new ArrayIterator();
     }
 
     private class ArrayIterator implements Iterator<T> {
         int currentIndex;
+        private boolean flNext = false;
 
         public ArrayIterator() {
             this.currentIndex = 0;
@@ -96,6 +74,7 @@ public class ArrayList<T> implements List<T> {
 
         @Override
         public boolean hasNext() {
+            flNext = true;
             return currentIndex < size;
         }
 
@@ -106,6 +85,16 @@ public class ArrayList<T> implements List<T> {
             }
             return (T) array[currentIndex++];
         }
+
+        @Override
+        public void remove() {
+            if (!flNext) {
+                throw new IllegalStateException();
+            }
+            ArrayList.this.remove(--currentIndex);
+            flNext = false;
+        }
+
     }
 
     @Override
@@ -151,6 +140,27 @@ public class ArrayList<T> implements List<T> {
         }
 
         return index;
+    }
+
+    @Override
+    public boolean removeIf(Predicate<T> predicate) {
+        //algorithm complexity O[N]
+        //hint: two indexies and going througth one array
+        int  oldSize = size;
+        int newSize = 0;
+        for (int i = 0; i < oldSize; i++) {
+            if (!predicate.test((T)array[i])) {
+                if (newSize != i) {
+                    array[newSize] = array[i];
+                    array[i] = null;
+                }
+                newSize++;
+            } else {
+                array[i] = null;
+                size--;
+            }
+        }
+        return size < oldSize;
     }
 
 }

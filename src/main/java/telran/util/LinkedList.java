@@ -17,9 +17,11 @@ public class LinkedList<T> implements List<T> {
 
     private class LinkedListIterator implements Iterator<T> {
         Node<T> current = head;
+        boolean flNext = false;
 
         @Override
         public boolean hasNext() {
+            flNext = true;
             return current != null;
         }
 
@@ -33,18 +35,19 @@ public class LinkedList<T> implements List<T> {
             return temp.obj;
         }
         
+        @Override
+        public void remove() {
+            if (!flNext) {
+                throw new IllegalStateException();
+            }
+            LinkedList.this.remove(size == 1 ? tail.obj : current.prev.obj);    
+            flNext = false;
+        }
     }
 
     Node<T> head;
     Node<T> tail;
     int size = 0;
-
-    private void checkIndex(int index, boolean sizeInclusive) {
-        int limit = sizeInclusive ? size : size - 1;
-        if (index < 0 || index > limit) {
-         throw new IndexOutOfBoundsException(index);
-        }
-     }
 
     private Node<T> getNode(int index) {
         return index < size / 2 ? getNodeFromHead(index) : getNodeFromTail(index);
@@ -114,19 +117,6 @@ public class LinkedList<T> implements List<T> {
     }
 
     @Override
-    public boolean remove(T pattern) {
-        boolean res = false;
-        int index = indexOf(pattern);
-
-        if (index >= 0) {
-            res = true;
-            remove(index);
-        }
-
-        return res;
-    }
-
-    @Override
     public int size() {
         return size;
     }
@@ -134,11 +124,6 @@ public class LinkedList<T> implements List<T> {
     @Override
     public boolean isEmpty() {
         return size == 0;
-    }
-
-    @Override
-    public boolean contains(T pattern) {
-        return indexOf(pattern) > -1;
     }
 
     @Override
