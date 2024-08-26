@@ -17,11 +17,11 @@ public class LinkedList<T> implements List<T> {
 
     private class LinkedListIterator implements Iterator<T> {
         Node<T> current = head;
+        Node<T> prevNode = null;
         boolean flNext = false;
 
         @Override
         public boolean hasNext() {
-            flNext = true;
             return current != null;
         }
 
@@ -30,6 +30,8 @@ public class LinkedList<T> implements List<T> {
             if(!hasNext()) {
                 throw new NoSuchElementException();
             }
+            flNext = true;
+            prevNode = current.prev;
             Node<T> temp = current;
             current = current.next;
             return temp.obj;
@@ -39,9 +41,26 @@ public class LinkedList<T> implements List<T> {
         public void remove() {
             if (!flNext) {
                 throw new IllegalStateException();
-            }
-            LinkedList.this.remove(size == 1 ? tail.obj : current.prev.obj);    
+            }        
+            removePrev();
             flNext = false;
+        }
+
+        private void removePrev() {
+            if (size == 1) {
+                head = null;
+                tail = null;
+            } else if (current == null) {
+                tail = prevNode;
+                tail.next = null;
+            } else if (prevNode == null) {
+                head = current;
+                head.prev = null;
+            } else {
+                current.prev = prevNode;
+                prevNode.next = current;
+            }  
+            size--;  
         }
     }
 
@@ -159,16 +178,18 @@ public class LinkedList<T> implements List<T> {
         return node.obj;
     }
 
-    private void removeHead(Node<T> currentNode) {
-        Node<T> nodeNext = currentNode.next;
-        nodeNext.prev = null;
-        head = nodeNext;        
+    private void removeHead(Node<T> currentNode) { 
+        head = currentNode.next;
+        if (head == null) {
+            tail = null;
+        } else {
+            head.prev = null;
+        }
     }
 
     private void removeTail(Node<T> currentNode) {
-        Node<T> nodePrev = currentNode.prev;
-        nodePrev.next = null;
-        tail = nodePrev;    
+        tail = currentNode.prev;
+        tail.next = null;  
     }
 
     private void removeMiddle(Node<T> currentNode) {

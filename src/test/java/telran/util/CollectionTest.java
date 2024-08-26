@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public abstract class CollectionTest {
-    private static final int N_ELEMENTS = 100_000;
+    private static final int N_ELEMENTS = 1_000_000;
     protected Collection<Integer> collection;
     Random random = new Random();
     Integer[] array = {3, -10, 20, 1, 10, 8, 100 , 17};
@@ -99,6 +99,6 @@ public abstract class CollectionTest {
     void performanceTest() {
         collection.clear();
         IntStream.range(0, N_ELEMENTS).forEach(i -> collection.add(random.nextInt()));
-        collection.clear();
+        collection.removeIf(n -> n % 2 == 0);
     }
 }
