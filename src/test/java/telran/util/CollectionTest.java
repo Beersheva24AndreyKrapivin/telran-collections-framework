@@ -22,18 +22,44 @@ public abstract class CollectionTest {
         Arrays.stream(array).forEach(collection::add);
     }
 
-    @Test
-    void addTest() {
-        assertTrue(collection.add(200));
+    @Test 
+    void addNonExistingTest() { 
+        assertTrue(collection.add(200)); 
+        runTest(new Integer[]{3, -10, 20, 1, 10, 8, 100 , 17, 200}); 
+    } 
+ 
+    @Test 
+    void addExistingTest() { 
         assertTrue(collection.add(17));
-        assertEquals(array.length + 2, collection.size());
+        runTest(new Integer[]{3, -10, 20, 1, 10, 8, 100 , 17, 17}); 
+    }
+
+    protected void runTest(Integer[] expected) {
+        assertArrayEquals(expected, collection.stream().toArray(Integer[]::new));
+        assertEquals(expected.length, collection.size());
+    }
+
+    @Test
+    void streamTest() {
+       runTest(array);
     }
 
     @Test
     void removeTest() {
-        assertFalse(collection.remove(200));
-        assertTrue(collection.remove(20));
-        assertEquals(array.length - 1, collection.size());        
+        Integer[] expected = {-10, 20, 1,  8, 100 };
+        assertTrue(collection.remove(10));
+        assertTrue(collection.remove(3));
+        assertTrue(collection.remove(17));
+        runTest(expected);
+        assertFalse(collection.remove(10));
+        assertFalse(collection.remove(3));
+        assertFalse(collection.remove(17));
+        clear();
+        runTest(new Integer[0]);        
+    }
+
+    private void clear() {
+        Arrays.stream(array).forEach(n -> collection.remove(n));
     }
     
     @Test
@@ -44,7 +70,7 @@ public abstract class CollectionTest {
     @Test
     void isEmptyTest() {
         assertFalse(collection.isEmpty());
-        Arrays.stream(array).forEach(n -> collection.remove(n));
+        clear();
         assertTrue(collection.isEmpty());
     }
 
@@ -100,5 +126,8 @@ public abstract class CollectionTest {
         collection.clear();
         IntStream.range(0, N_ELEMENTS).forEach(i -> collection.add(random.nextInt()));
         collection.removeIf(n -> n % 2 == 0);
+        assertTrue(collection.stream().allMatch(n -> n % 2 != 0));
+        collection.clear();
+        assertTrue(collection.isEmpty());
     }
 }

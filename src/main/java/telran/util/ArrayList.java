@@ -22,31 +22,19 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public boolean add(T obj) {
-        if (size == array.length) {
-            reallocate();
-        }
+        reallocationIfNeeded();
         array[size++] = obj;
         return true;
     }
 
+    private void reallocationIfNeeded() {
+        if(size == array.length) {
+            reallocate();
+        }
+    }
+
     private void reallocate() {
         array = Arrays.copyOf(array, array.length * 2);
-    }
-
-    private void moveArrayLeft(int index) {
-        for (int i = index; i < size; i++) {
-            array[i] = array[i + 1];
-        }
-        array[size - 1] = null;
-        size--;
-    }
-
-    private void moveArrayRight(int index, T obj) {
-        for (int i = size - 1; i >= index; i--) {
-            array[i + 1] = array[i];
-        }
-        array[index] = obj;
-        size++;
     }
 
     @Override
@@ -100,17 +88,19 @@ public class ArrayList<T> implements List<T> {
     @Override
     public void add(int index, T obj) {
         checkIndex(index, true);
-        if (size == array.length) {
-            reallocate();
-        }
-        moveArrayRight(index, obj);
+        reallocationIfNeeded();
+        System.arraycopy(array, index, array, index + 1, size - index);
+        array[index] = obj;
+        size++;
     }
 
     @Override
     public T remove(int index) {
         checkIndex(index, false);
-        T res = (T) array[index];
-        moveArrayLeft(index);
+        T res = (T)array[index];
+        size--;
+        System.arraycopy(array, index + 1, array, index, size - index);
+        array[size] = null;
         return res;
     }
 
