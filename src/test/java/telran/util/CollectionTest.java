@@ -46,14 +46,16 @@ public abstract class CollectionTest {
 
     @Test
     void removeTest() {
-        Integer[] expected = {-10, 20, 1,  8, 100 };
-        assertTrue(collection.remove(10));
+        Integer[] expected = {1, 10, 8, 17};
+        assertTrue(collection.remove(-10));
+        assertTrue(collection.remove(20));
+        assertTrue(collection.remove(100));
         assertTrue(collection.remove(3));
-        assertTrue(collection.remove(17));
         runTest(expected);
-        assertFalse(collection.remove(10));
+        assertFalse(collection.remove(-10));
+        assertFalse(collection.remove(20));
+        assertFalse(collection.remove(100));
         assertFalse(collection.remove(3));
-        assertFalse(collection.remove(17));
         clear();
         runTest(new Integer[0]);        
     }

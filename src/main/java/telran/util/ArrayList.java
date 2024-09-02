@@ -62,7 +62,6 @@ public class ArrayList<T> implements List<T> {
 
         @Override
         public boolean hasNext() {
-            flNext = true;
             return currentIndex < size;
         }
 
@@ -71,6 +70,7 @@ public class ArrayList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
+            flNext = true;
             return (T) array[currentIndex++];
         }
 

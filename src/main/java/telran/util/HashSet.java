@@ -25,7 +25,7 @@ public class HashSet<T> implements Set<T> {
             list = hashTable[index++];
             if (list != null) {
                 currentIterator = list.iterator();
-            }  
+            }
         }
 
         @Override
@@ -61,7 +61,7 @@ public class HashSet<T> implements Set<T> {
 
             return res;
         }
-    
+
         @Override
         public void remove() {
             if (!flNext) {
@@ -78,7 +78,7 @@ public class HashSet<T> implements Set<T> {
             size--;
             flNext = false;
         }
-        
+
     }
 
     public HashSet(int hashTableLenght, float factor) {
@@ -124,8 +124,8 @@ public class HashSet<T> implements Set<T> {
         for (List<T> list : hashTable) {
             if (list != null) {
                 list.forEach(obj -> addObjInHashTable(obj, tempTable));
-                list.clear(); //??? for testing. May be remove
-            }    
+                list.clear(); // ??? for testing. May be remove
+            }
         }
         hashTable = tempTable;
     }
@@ -133,7 +133,7 @@ public class HashSet<T> implements Set<T> {
     @Override
     public boolean remove(T pattern) {
         boolean res = false;
-        
+
         int index = getIndex(pattern, hashTable.length);
         List<T> list = hashTable[index];
 
@@ -171,15 +171,15 @@ public class HashSet<T> implements Set<T> {
 
     @Override
     public T get(Object pattern) {
-        int innerIndex = -1;
-        List<T> list = getInnerList((T)pattern);
+        List<T> list = getInnerList((T) pattern);
+        int innerIndex = list.indexOf((T) pattern);
 
-        return list != null && (innerIndex = list.indexOf((T) pattern)) >= 0 ? list.get(innerIndex) : null;
+        return list != null && innerIndex >= 0 ? list.get(innerIndex) : null;
     }
 
     private List<T> getInnerList(T pattern) {
         int index = getIndex(pattern, hashTable.length);
-        return hashTable[index];   
+        return hashTable[index];
     }
 
 }
