@@ -171,10 +171,16 @@ public class HashSet<T> implements Set<T> {
 
     @Override
     public T get(Object pattern) {
-        List<T> list = getInnerList((T) pattern);
-        int innerIndex = list.indexOf((T) pattern);
+        T res = null;
+        T tpattern = (T) pattern;
+		if (contains(tpattern)) {
+			int index = getIndex(tpattern, hashTable.length);
+			List<T> list = hashTable[index];
+			int indexInList = list.indexOf(tpattern);
+			res = list.get(indexInList);
 
-        return list != null && innerIndex >= 0 ? list.get(innerIndex) : null;
+		}
+		return res;
     }
 
     private List<T> getInnerList(T pattern) {
