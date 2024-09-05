@@ -48,7 +48,9 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
         Iterator<Entry<K, V>> iterator = set.iterator();
         while (iterator.hasNext() && !res) {
             Entry<K, V> entry = iterator.next();
-            if (entry.getValue().equals(value)) {
+            V currentValue = entry.getValue();
+            if (currentValue == null && value == null
+                || currentValue != null && currentValue.equals(value)) {
                 res = true;
             }
         }
