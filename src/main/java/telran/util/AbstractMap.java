@@ -23,18 +23,10 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
         Entry<K, V> pattern = new Entry<>((K) key, null);
         Entry<K, V> entry = set.get(pattern);
         V res = null;
-        boolean flag = false;
 
         if (entry != null) {
-            Iterator<Entry<K, V>> iterator = set.iterator();
-            while (iterator.hasNext() && !flag) {
-                Entry<K, V> currentEntry = iterator.next();
-                if (currentEntry.getKey().equals(key)) {
-                    res = currentEntry.getValue();
-                    currentEntry.setValue(value);
-                    flag = true;
-                }
-            }
+            res = entry.getValue();
+            entry.setValue(value);
         } else {
             entry = new Entry<>(key, value);
             set.add(entry);
