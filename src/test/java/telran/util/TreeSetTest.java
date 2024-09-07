@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class TreeSetTest extends SetTest {
+public class TreeSetTest extends SortedSetTest {
     @BeforeEach
     @Override
     void setUp() {

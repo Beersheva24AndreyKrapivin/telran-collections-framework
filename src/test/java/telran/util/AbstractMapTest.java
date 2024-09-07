@@ -95,6 +95,8 @@ public abstract class AbstractMapTest {
     @Test
     void isEmptyTest() {
         assertFalse(map.isEmpty()); 
+        map.entrySet().clear();
+        assertTrue(map.isEmpty()); 
     }
 
     

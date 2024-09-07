@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 @SuppressWarnings("unchecked")
-public class TreeSet<T> implements Set<T> {
+public class TreeSet<T> implements SortedSet<T> {
     private static class Node<T> {
         T obj;
         Node<T> parent;
@@ -50,27 +50,6 @@ public class TreeSet<T> implements Set<T> {
 
         }
 
-        private Node<T> getNextCurrent(Node<T> current) {
-            Node<T> res = null;
-
-            if (current.right != null) {
-                res = getLeastFrom(current.right);
-            } else if (current.right == null) {
-                res = getGreaterParent(current);
-            }
-
-            return res;
-        }
-
-        private Node<T> getGreaterParent(Node<T> current) {
-            Node<T> parent = current.parent;
-            while (parent != null && comparator.compare(parent.obj, current.obj) < 0) {
-                parent = parent.parent;
-            }
-
-            return parent == null ? null : parent;
-        }
-
         @Override
         public void remove() {
             if (!flNext) {
@@ -85,18 +64,15 @@ public class TreeSet<T> implements Set<T> {
             size--;
             currentIndex--;
         }
-
-        private Node<T> getLeastFrom(Node<T> node) {
-            while (node.left != null) {
-                node = node.left;
-            }
-            return node;
-        }
     }
 
     private Node<T> root;
     private Comparator<T> comparator;
     private int size;
+
+    private enum SearchType {
+        MIN, MAX
+    }
 
     public TreeSet(Comparator<T> comparator) {
         this.comparator = comparator;
@@ -175,6 +151,34 @@ public class TreeSet<T> implements Set<T> {
         return node;
     }
 
+    private Node<T> getLeastFrom(Node<T> node) {
+        while (node.left != null) {
+            node = node.left;
+        }
+        return node;
+    }
+
+    private Node<T> getNextCurrent(Node<T> current) {
+        Node<T> res = null;
+
+        if (current.right != null) {
+            res = getLeastFrom(current.right);
+        } else if (current.right == null) {
+            res = getGreaterParent(current);
+        }
+
+        return res;
+    }
+
+    private Node<T> getGreaterParent(Node<T> current) {
+        Node<T> parent = current.parent;
+        while (parent != null && comparator.compare(parent.obj, current.obj) < 0) {
+            parent = parent.parent;
+        }
+
+        return parent == null ? null : parent;
+    }
+
     private void removeNodeWithOneChild(Node<T> node) {
         Node<T> child = node.left != null ? node.left : node.right;
         Node<T> parent = node.parent;
@@ -195,7 +199,7 @@ public class TreeSet<T> implements Set<T> {
     private void removeNodeWithoutChild(Node<T> node) {
         Node<T> parent = node.parent;
         if (node == root) {
-            root = null;    
+            root = null;
         } else if (parent.left == node) {
             parent.left = null;
         } else {
@@ -237,20 +241,34 @@ public class TreeSet<T> implements Set<T> {
         Node<T> current = root;
         Node<T> parent = null;
         int compRes = 0;
-        while(current != null && (compRes = comparator.compare(pattern, current.obj)) != 0) {
+        while (current != null && (compRes = comparator.compare(pattern, current.obj)) != 0) {
             parent = current;
             current = compRes > 0 ? current.right : current.left;
         }
         return current == null ? parent : current;
     }
 
+    private Node<T> getNodeOrBoundary(T pattern, SearchType searchType) {
+        Node<T> current = root;
+        Node<T> find = null;
+        int compRes = 0;
+        while (current != null && (compRes = comparator.compare(pattern, current.obj)) != 0) {
+            if (searchType == SearchType.MIN && compRes > 0
+                || searchType == SearchType.MAX && compRes < 0) {
+                find = current;
+            }
+            current = compRes > 0 ? current.right : current.left;
+        }
+        return current == null ? find : current;
+    }
+
     private Node<T> getNode(T pattern) {
         Node<T> res = getParentOrNode(pattern);
-        if(res != null) {
+        if (res != null) {
             int compRes = comparator.compare(pattern, res.obj);
             res = compRes == 0 ? res : null;
         }
-        
+
         return res;
     }
 
@@ -258,6 +276,52 @@ public class TreeSet<T> implements Set<T> {
         Node<T> res = getParentOrNode(pattern);
         int compRes = comparator.compare(pattern, res.obj);
         return compRes == 0 ? null : res;
+    }
+
+    @Override
+    public T first() {
+        T res = null;
+        if (root != null) {
+            res = getLeastFrom(root).obj;
+        }
+        return res;
+    }
+
+    @Override
+    public T last() {
+        T res = null;
+        if (root != null) {
+            res = getGreatestFrom(root).obj;
+        }
+        return res;
+    }
+
+    @Override
+    public T floor(T key) {
+        Node<T> node = getNodeOrBoundary(key, SearchType.MIN);
+        return node != null ? node.obj : null;
+    }
+
+    @Override
+    public T ceiling(T key) {
+        Node<T> node = getNodeOrBoundary(key, SearchType.MAX);
+        return node != null ? node.obj : null;
+    }
+
+    @Override
+    public SortedSet<T> subSet(T keyFrom, T keyTo) {
+        SortedSet<T> res = new TreeSet<>();
+        int compMax = -1;
+        
+        Iterator<T> iterator = iterator();
+        while (iterator.hasNext() && compMax < 0) {
+            T current = iterator.next();
+            if (comparator.compare(current, keyFrom) >= 0 && (compMax = comparator.compare(current, keyTo)) < 0) {
+                res.add(current);    
+            }    
+        }
+
+        return res;
     }
 
 }

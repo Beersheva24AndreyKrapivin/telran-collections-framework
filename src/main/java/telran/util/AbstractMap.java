@@ -1,6 +1,7 @@
 package telran.util;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 public abstract class AbstractMap<K, V> implements Map<K, V> {
     protected Set<Entry<K, V>> set;
@@ -43,29 +44,13 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        boolean res = false;
-
-        Iterator<Entry<K, V>> iterator = set.iterator();
-        while (iterator.hasNext() && !res) {
-            Entry<K, V> entry = iterator.next();
-            V currentValue = entry.getValue();
-            if (currentValue == null && value == null
-                || currentValue != null && currentValue.equals(value)) {
-                res = true;
-            }
-        }
-
-        return res;
+        return set.stream().anyMatch(e -> Objects.equals(e.getValue(),value));
     }
 
     @Override
     public Set<K> keySet() {
         Set<K> keySet = getEmptyKeySet();
-        Iterator<Entry<K, V>> iterator = set.iterator();
-        while (iterator.hasNext()) {
-            Entry<K, V> entry = iterator.next();
-            keySet.add(entry.getKey());
-        }
+        set.stream().map(Entry::getKey).forEach(keySet::add);
         return keySet;
     }
 
@@ -76,12 +61,8 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
 
     @Override
     public Collection<V> values() {
-        Collection<V> collection = (Collection<V>) getEmptyKeySet();
-        Iterator<Entry<K, V>> iterator = set.iterator();
-        while (iterator.hasNext()) {
-            Entry<K, V> entry = iterator.next();
-            collection.add(entry.getValue());
-        }
+        ArrayList<V> collection = new ArrayList<>(set.size());
+        set.stream().map(Entry::getValue).forEach(collection::add);
         return collection;
     }
 
@@ -95,4 +76,24 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
         return set.isEmpty();
     }
 
+    @Override
+    public V remove(K key) {
+        Entry<K, V> entry = getEntry(key);
+        V res = null;
+        if (entry != null) {
+            set.remove(entry);
+            res = entry.getValue();    
+        }
+        return res;
+    }
+
+    private Entry<K, V> getEntry(Object key) {
+        Entry<K, V> pattern = getPattern(key);
+       Entry<K,V> entry = set.get(pattern);
+        return entry;
+    }
+
+    private Entry<K, V> getPattern(Object key) {
+        return new Entry<>((K)key, null);
+    }
 }

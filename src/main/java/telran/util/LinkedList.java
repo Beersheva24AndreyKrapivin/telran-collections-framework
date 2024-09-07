@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.NoSuchElementException;
 
 public class LinkedList<T> implements List<T> {
-    private static class Node<T> {
+    static class Node<T> {
         T obj;
         Node<T> next;
         Node<T> prev;
@@ -15,10 +15,9 @@ public class LinkedList<T> implements List<T> {
         }
     }
 
-    private class LinkedListIterator implements Iterator<T> {
+    class LinkedListIterator implements Iterator<T> {
         Node<T> current = head;
-        Node<T> prevNode = null;
-        boolean flNext = false;
+        Node<T> prev = null;
 
         @Override
         public boolean hasNext() {
@@ -27,40 +26,22 @@ public class LinkedList<T> implements List<T> {
 
         @Override
         public T next() {
-            if(!hasNext()) {
+            if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            flNext = true;
-            prevNode = current.prev;
-            Node<T> temp = current;
+            T res = current.obj;
+            prev = current;
             current = current.next;
-            return temp.obj;
-        }
-        
-        @Override
-        public void remove() {
-            if (!flNext) {
-                throw new IllegalStateException();
-            }        
-            removePrev();
-            flNext = false;
+            return res;
         }
 
-        private void removePrev() {
-            if (size == 1) {
-                head = null;
-                tail = null;
-            } else if (current == null) {
-                tail = prevNode;
-                tail.next = null;
-            } else if (prevNode == null) {
-                head = current;
-                head.prev = null;
-            } else {
-                current.prev = prevNode;
-                prevNode.next = current;
-            }  
-            size--;  
+        @Override
+        public void remove() {
+            if (prev == null) {
+                throw new IllegalStateException();
+            }
+            removeNode(prev);
+            prev = null;
         }
     }
 
@@ -68,11 +49,11 @@ public class LinkedList<T> implements List<T> {
     Node<T> tail;
     int size = 0;
 
-    private Node<T> getNode(int index) {
+    Node<T> getNode(int index) {
         return index < size / 2 ? getNodeFromHead(index) : getNodeFromTail(index);
     }
 
-    private Node<T> getNodeFromTail(int index) {
+    Node<T> getNodeFromTail(int index) {
         Node<T> current = tail;
 
         for (int i = size - 1; i > index; i--) {
@@ -92,7 +73,7 @@ public class LinkedList<T> implements List<T> {
         return current;
     }
 
-    private void addNode(Node<T> node, int index) {
+    void addNode(Node<T> node, int index) {
         if (index == 0) {
             addHead(node);
         } else if (index == size) {
@@ -154,49 +135,55 @@ public class LinkedList<T> implements List<T> {
     public void add(int index, T obj) {
         checkIndex(index, true);
         Node<T> node = new Node<>(obj);
-        addNode(node, index);    
+        addNode(node, index);
     }
 
     @Override
     public T remove(int index) {
         checkIndex(index, false);
-        Node<T> node = getNode(index);
-
-        if (size == 1) {
-            head = null;
-            tail = null;   
-        } else if (index == 0) {
-            removeHead(node);  
-        } else if (index == size - 1) {
-            removeTail(node);
-        } else {
-            removeMiddle(node);
-        }
-
-        size--;
-
-        return node.obj;
+        Node<T> toRemoveNode = getNode(index);
+        T res = toRemoveNode.obj;
+        removeNode(toRemoveNode);
+        return res;
     }
 
-    private void removeHead(Node<T> currentNode) { 
-        head = currentNode.next;
+    void removeNode(Node<T> toRemoveNode) {
+        if (toRemoveNode == head) {
+            removeHead();
+        } else if (toRemoveNode == tail) {
+            removeTail();
+        } else {
+            removeMiddle(toRemoveNode);
+        }
+        size--;
+        clearReferences(toRemoveNode);
+    }
+
+    private void clearReferences(Node<T> node) {
+        node.next = null;
+        node.obj = null;
+        node.prev = null;
+    }
+
+    private void removeMiddle(Node<T> toRemoveNode) {
+        Node<T> beforeNode = toRemoveNode.prev;
+        Node<T> afterNode = toRemoveNode.next;
+        beforeNode.next = afterNode;
+        afterNode.prev = beforeNode;
+    }
+
+    private void removeTail() {
+        tail = tail.prev;
+        tail.next = null;
+    }
+
+    private void removeHead() {
+        head = head.next;
         if (head == null) {
             tail = null;
         } else {
             head.prev = null;
         }
-    }
-
-    private void removeTail(Node<T> currentNode) {
-        tail = currentNode.prev;
-        tail.next = null;  
-    }
-
-    private void removeMiddle(Node<T> currentNode) {
-        Node<T> nodeNext = currentNode.next;
-        Node<T> nodePrev = currentNode.prev;
-        nodePrev.next = nodeNext;
-        nodeNext.prev = nodePrev;    
     }
 
     @Override
