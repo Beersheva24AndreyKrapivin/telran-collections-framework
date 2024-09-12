@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SortedSetTest extends SetTest{
+public abstract class SortedSetTest extends SetTest{
     SortedSet<Integer> sortedSet;
 
     @Override

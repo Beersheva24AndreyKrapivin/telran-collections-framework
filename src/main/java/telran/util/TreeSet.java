@@ -32,7 +32,7 @@ public class TreeSet<T> implements SortedSet<T> {
 
         @Override
         public boolean hasNext() {
-            return currentIndex < size;
+            return current != null;
         }
 
         @Override
@@ -69,6 +69,16 @@ public class TreeSet<T> implements SortedSet<T> {
     private Node<T> root;
     private Comparator<T> comparator;
     private int size;
+    private String printingSymbol = " ";
+    private int symbolsPerLevel = 2;
+
+    public void setPrintingSymbol(String printingSymbol) {
+        this.printingSymbol = printingSymbol;
+    }
+
+    public void setSymbolsPerLevel(int symbolsPerLevel) {
+        this.symbolsPerLevel = symbolsPerLevel;
+    }
 
     private enum SearchType {
         MIN, MAX
@@ -145,15 +155,19 @@ public class TreeSet<T> implements SortedSet<T> {
     }
 
     private Node<T> getGreatestFrom(Node<T> node) {
-        while (node.right != null) {
-            node = node.right;
+        if (node != null) {
+            while (node.right != null) {
+                node = node.right;
+            }
         }
         return node;
     }
 
     private Node<T> getLeastFrom(Node<T> node) {
-        while (node.left != null) {
-            node = node.left;
+        if (node != null) {
+            while (node.left != null) {
+                node = node.left;
+            }
         }
         return node;
     }
@@ -170,13 +184,13 @@ public class TreeSet<T> implements SortedSet<T> {
         return res;
     }
 
-    private Node<T> getGreaterParent(Node<T> current) {
-        Node<T> parent = current.parent;
-        while (parent != null && comparator.compare(parent.obj, current.obj) < 0) {
-            parent = parent.parent;
+    private Node<T> getGreaterParent(Node<T> node) {
+        Node<T> parent = node.parent;
+        while (parent != null && parent.right == node) {
+            node = node.parent;
+            parent = node.parent;
         }
-
-        return parent == null ? null : parent;
+        return parent;
     }
 
     private void removeNodeWithOneChild(Node<T> node) {
@@ -254,7 +268,7 @@ public class TreeSet<T> implements SortedSet<T> {
         int compRes = 0;
         while (current != null && (compRes = comparator.compare(pattern, current.obj)) != 0) {
             if (searchType == SearchType.MIN && compRes > 0
-                || searchType == SearchType.MAX && compRes < 0) {
+                    || searchType == SearchType.MAX && compRes < 0) {
                 find = current;
             }
             current = compRes > 0 ? current.right : current.left;
@@ -310,18 +324,93 @@ public class TreeSet<T> implements SortedSet<T> {
 
     @Override
     public SortedSet<T> subSet(T keyFrom, T keyTo) {
-        SortedSet<T> res = new TreeSet<>();
-        int compMax = -1;
-        
-        Iterator<T> iterator = iterator();
-        while (iterator.hasNext() && compMax < 0) {
-            T current = iterator.next();
-            if (comparator.compare(current, keyFrom) >= 0 && (compMax = comparator.compare(current, keyTo)) < 0) {
-                res.add(current);    
-            }    
+        if (comparator.compare(keyFrom, keyTo) > 0) {
+            throw new IllegalArgumentException();
         }
+        TreeSet<T> subTree = new TreeSet<>(comparator);
+        Node<T> ceilingNode = getNodeOrBoundary(keyFrom, SearchType.MAX);
+        Node<T> current = ceilingNode;
+        while (current != null && comparator.compare(current.obj, keyTo) < 0) {
+            subTree.add(current.obj);
+            current = getNextCurrent(current);
+        }
+        return subTree;
+    }
 
+    public void displayTreeRotated() {
+        displayTreeRotated(root, 0);
+    }
+
+    public void displayTreeParentChildren() {
+        displayTreeParentChildren(root, 0);
+    }
+
+    private void displayTreeParentChildren(Node<T> root, int level) {
+        if (root != null) {
+            displayRootObject(root.obj, level);
+            displayTreeParentChildren(root.left, level + 1);
+            displayTreeParentChildren(root.right, level + 1);
+        }
+    }
+
+    public int width() {
+        return width(root);
+    }
+
+    private int width(Node<T> root) {
+        int res = 0;
+        if (root != null) {
+            res = root.left == null && root.right == null ? 1 : width(root.left) + width(root.right);
+        }
         return res;
+    }
+
+    public int height() {
+        return height(root);
+    }
+
+    private int height(Node<T> root) {
+        int res = 0;
+        if (root != null) {
+            int heightLeft = height(root.left);
+            int heightRight = height(root.right);
+            res = 1 + Math.max(heightLeft, heightRight);
+        }
+        return res;
+    }
+
+    public void inversion() {
+        // reversing nodes placement with the same root and with the same nodes
+        // only left, right references should be swapped
+        inversion(root);
+        comparator = comparator.reversed();
+        
+    }
+
+    private void inversion(Node<T> root) {
+        if (root != null) {
+            Node<T> tmp = root.left;
+            root.left = root.right;
+            root.right = tmp;
+            if (root.left != null) {
+                inversion(root.left);
+            }
+            if (root.right != null) {
+                inversion(root.right);
+            }
+        }
+    }
+
+    private void displayTreeRotated(Node<T> root, int level) {
+        if (root != null) {
+            displayTreeRotated(root.right, level + 1);
+            displayRootObject(root.obj, level);
+            displayTreeRotated(root.left, level + 1);
+        }
+    }
+
+    private void displayRootObject(T obj, int level) {
+        System.out.printf("%s%s\n", printingSymbol.repeat(level * symbolsPerLevel), obj);
     }
 
 }
