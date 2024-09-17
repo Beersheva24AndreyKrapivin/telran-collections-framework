@@ -413,4 +413,31 @@ public class TreeSet<T> implements SortedSet<T> {
         System.out.printf("%s%s\n", printingSymbol.repeat(level * symbolsPerLevel), obj);
     }
 
+    public void balance() {
+        Node<T> [] nodes = getSortedNodesArray();
+        root = balanceArray(nodes, 0, nodes.length - 1, null);
+    }
+
+    private Node<T> balanceArray(Node<T>[] array, int left, int right, Node<T> parent) {
+        Node<T> root = null;
+        if (left <= right) {
+            int middle = (left + right) / 2;
+            root = array[middle];
+            root.parent = parent;
+            root.left = balanceArray(array, left, middle - 1, root);
+            root.right = balanceArray(array, middle + 1, right, root);    
+        }
+        return root;
+    }
+
+    private Node<T>[] getSortedNodesArray() {
+        Node<T>[] array = new Node[size];
+        Node<T> current = getLeastFrom(root);
+        for (int i = 0; i < size; i++) {
+            array[i] = current;
+            current = getNextCurrent(current);
+        }
+        return array;
+    }
+
 }
