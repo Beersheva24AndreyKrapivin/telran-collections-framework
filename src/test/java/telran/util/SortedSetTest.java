@@ -78,13 +78,14 @@ public abstract class SortedSetTest extends SetTest{
         return balanceArray;
     }
 
-    private void sortedArrayForbalanceTree(Integer[] array, Integer[] balanceArray, int left, int right, int currentIndex) {
+    private int sortedArrayForbalanceTree(Integer[] array, Integer[] balanceArray, int left, int right, int currentIndex) {
         if (left <= right) {
-            int middle = (left + right + 1) / 2;
-            balanceArray[currentIndex] = array[middle];
-            sortedArrayForbalanceTree(array, balanceArray, left, middle - 1, 2 * currentIndex + 1);
-            sortedArrayForbalanceTree(array, balanceArray, middle + 1, right, 2 * currentIndex + 2);  
+            int middle = (left + right) / 2;
+            balanceArray[currentIndex++] = array[middle];
+            currentIndex = sortedArrayForbalanceTree(array, balanceArray, left, middle - 1, currentIndex);
+            currentIndex = sortedArrayForbalanceTree(array, balanceArray, middle + 1, right, currentIndex);  
         } 
+        return currentIndex;
     }
 
     @Override
